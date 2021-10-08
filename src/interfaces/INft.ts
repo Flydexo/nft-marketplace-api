@@ -10,4 +10,5 @@ export interface IMongoNft {
 export interface INftDto {
   chainId: string;
   categories?: string[];
+  from?: string
 }

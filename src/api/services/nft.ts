@@ -303,13 +303,18 @@ export class NFTService {
       const categories = await Promise.all(
         nftDTO.categories.map(async (x) => CategoryService.getCategoryByCode(x))
       )
+      const from = nftDTO.from;
+      console.log(nftDTO.chainId)
       const data = {
           chainId: nftDTO.chainId,
-          categories
+          categories,
+          from,
+          rate: 0
       }
       const newNft = new NftModel(data);
       return await newNft.save();
     } catch (err) {
+      console.log(err)
       throw new Error("NFT can't be created");
     }
   }
