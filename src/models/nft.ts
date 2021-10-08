@@ -12,7 +12,21 @@ const Nft = new mongoose.Schema({
   categories: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Category'
-  }]
+  }],
+  from: {
+    type: String,
+  },
+  comments: [{author: {
+    type: String,
+    required: true
+  }, content: String, rate: {
+    required: true,
+    type: Number
+  }}],
+  rate: {
+    required: true,
+    type: Number
+  }
 });
 
 Nft.plugin(mongoosePaginate);
