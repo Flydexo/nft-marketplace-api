@@ -6,10 +6,13 @@ export default express
   .get("/", controller.all) // ternoa-api
   .get("/verifyTwitter/:id", controller.verifyTwitter) // ternoa-api
   .get("/getUsers", controller.getUsersBywalletId) // ternoa-api
+  .get("/getBadges", controller.getUserBadgesWithWalletId)
   .get("/:id", controller.getUser) // ternoa-api
   .get("/:id/caps", controller.getAccountBalance)
   .get("/:id/liked", controller.getLikedNfts)
-  .post("/create", controller.newUser) // ternoa-api
-  .post("/like", controller.likeNft) // ternoa-api
-  .post("/unlike", controller.unlikeNft) // ternoa-api
-  .post("/:walletId", controller.updateUser); // ternoa-api
+  .post("/addBadgeToUser", controller.addBadgeToUser)
+  .post("/create", controller.newUser) 
+  .post("/like", controller.likeNft)
+  .post("/removeBadgeFromUser", controller.removeBadgeFromUser)
+  .post("/unlike", controller.unlikeNft) 
+  .post("/:walletId", controller.updateUser);

@@ -2,6 +2,7 @@ import { request } from "graphql-request";
 import fetch from "node-fetch";
 import { IUser } from "../../interfaces/IUser";
 import UserViewModel from "../../models/userView";
+import BadgesModel from "../../models/badges"
 import QueriesBuilder from "./gqlQueriesBuilder";
 import { AccountResponse, Account } from "../../interfaces/graphQL";
 import NodeCache from "node-cache";
@@ -50,8 +51,12 @@ export class UserService {
           viewsCount = views.length
         }
       }
+      let badges = await BadgesModel.findOne({walletId});
+      if(!badges){
+        badges = null;
+      }
       if (!usersCache.has(walletId)) usersCache.set(walletId, user);
-      return {...user, viewsCount};
+      return {...user, viewsCount, badges};
     } catch (err) {
       throw new Error(err + "User can't be found");
     }

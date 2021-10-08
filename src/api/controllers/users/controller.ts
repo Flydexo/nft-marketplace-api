@@ -2,6 +2,9 @@ import UserService from "../../services/user";
 import { NextFunction, Request, Response } from "express";
 import fetch from "node-fetch";
 import { LIMIT_MAX_PAGINATION } from "../../../utils";
+import BadgesModel from "../../../models/badges";
+import NFTService from "../../../api/services/nft";
+import { ParsedUrlQuery } from "querystring";
 
 export class Controller {
   async all(req: Request, res: Response): Promise<void> {
@@ -169,6 +172,101 @@ export class Controller {
       res.redirect(`${process.env.TERNOA_API_URL}/api/users/verifyTwitter/${req.params.id}`)
     }catch(err){
       next(err)
+    }
+  }
+
+  async addBadgeToUser(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void>{
+    try{
+      const walletId = req.body.walletId;
+      const emoteId: string = req.body.emoteId;
+      const user = await BadgesModel.findOne({walletId});
+      const result = await NFTService.getNFT(emoteId);
+      if(user){
+        if(user.emotes.length >= 1){
+          if(user.emotes.map(e => e.nftId).includes(emoteId)) res.json({error: "You already have this badge"})
+        }else{
+          if(user.emotes.length >= 3){
+            if(result.owner === walletId){
+              const newEmotes = {emotes:[user.emotes[0], user.emotes[1], {nftId: emoteId}]};
+              await user.updateOne(newEmotes);
+              res.json({success: "User updated", data: newEmotes});
+            }else{
+              res.json({error: "You don't have this NFT"});
+            }
+          }else{
+            if(result.owner === walletId){
+              const newEmotes = {emotes:[...user.emotes, {nftId: emoteId}]};
+              await user.updateOne(newEmotes);
+              res.json({success: "User updated", data: newEmotes});
+            }else{
+              res.json({error: "You don't have this NFT"});
+            }
+          }
+        }
+      }else{
+        if(result.owner === walletId){
+          const newUser = new BadgesModel({walletId, emotes:[{nftId: emoteId}]});
+          await newUser.save();
+          res.json({success: "User updated", data: newUser.emotes});
+        }else{
+          res.json({error: "You don't have this NFT"});
+        }
+      }
+    }catch(err){
+      next(err);
+    }
+  }
+
+  async removeBadgeFromUser(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void>{
+    try{
+      const walletId: string = req.body.walletId;
+      const emoteId: string = req.body.emoteId;
+      const user = await BadgesModel.findOne({walletId});
+      if(user){
+        const result = await NFTService.getNFT(emoteId);
+        if(result.owner === walletId){
+          user.emotes.forEach((b, i) => {
+            if(b.nftId === emoteId){
+              user.emotes.splice(i, 1);
+              return
+            }
+          })
+          await user.updateOne({emotes: user.emotes})
+          res.json({success: "Badge deleted", data: user.emotes})
+        }else{
+          res.json({error: "You don't have this NFT"})
+        }
+      }else{
+        res.json({error: "You don't have badges"})
+      }
+    }catch(err){
+      next(err);
+    }
+  }
+
+  async getUserBadgesWithWalletId(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void>{
+    try{
+      const walletId = req.query.walletId.toString();
+      const badges = await BadgesModel.findOne({walletId})
+      if(badges){
+        res.json({data: badges.emotes})
+      }else{
+        res.json({error: "Incorrect wallet id"})
+      }
+    }catch(err){
+      next(err);
     }
   }
 }
