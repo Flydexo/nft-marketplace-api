@@ -187,24 +187,25 @@ export class Controller {
       const result = await NFTService.getNFT(emoteId);
       if(user){
         if(user.emotes.length >= 1){
-          if(user.emotes.map(e => e.nftId).includes(emoteId)) res.json({error: "You already have this badge"})
-        }else{
-          if(user.emotes.length >= 3){
-            if(result.owner === walletId){
-              const newEmotes = {emotes:[user.emotes[0], user.emotes[1], {nftId: emoteId}]};
-              await user.updateOne(newEmotes);
-              res.json({success: "User updated", data: newEmotes});
-            }else{
-              res.json({error: "You don't have this NFT"});
-            }
+          if(user.emotes.map(e => e.nftId).includes(emoteId)){
+            res.send({error: "You already have this badge"})
+          }
+        }
+        if(user.emotes.length >= 3){
+          if(result.owner === walletId){
+            const newEmotes = {emotes:[user.emotes[0], user.emotes[1], {nftId: emoteId}]};
+            await user.updateOne(newEmotes);
+            res.json({success: "User updated", data: newEmotes});
           }else{
-            if(result.owner === walletId){
-              const newEmotes = {emotes:[...user.emotes, {nftId: emoteId}]};
-              await user.updateOne(newEmotes);
-              res.json({success: "User updated", data: newEmotes});
-            }else{
-              res.json({error: "You don't have this NFT"});
-            }
+            res.json({error: "You don't have this NFT"});
+          }
+        }else{
+          if(result.owner === walletId){
+            const newEmotes = {emotes:[...user.emotes, {nftId: emoteId}]};
+            await user.updateOne(newEmotes);
+            res.json({success: "User updated", data: newEmotes});
+          }else{
+            res.json({error: "You don't have this NFT"});
           }
         }
       }else{
