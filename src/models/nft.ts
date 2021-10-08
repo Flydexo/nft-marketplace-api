@@ -38,3 +38,21 @@ const NftModel = mongoose.model<IMongoNft & mongoose.Document>(
 ) as PaginateModel<IMongoNft & mongoose.Document>;
 
 export default NftModel;
+
+
+/*
+  from: {
+    type: String,
+  },
+  comments: [{author: {
+    type: String,
+    required: true
+  }, content: String, rate: {
+    required: true,
+    type: Number
+  }}],
+  rate: {
+    required: true,
+    type: Number
+  }
+  */
