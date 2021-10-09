@@ -12,3 +12,13 @@ export interface INftDto {
   categories?: string[];
   from?: string
 }
+
+export interface IMongoNftComment {
+  _id: string;
+  comments: {
+    _id: string,
+    author: string,
+    note: number,
+    text?: string
+  }[];
+}

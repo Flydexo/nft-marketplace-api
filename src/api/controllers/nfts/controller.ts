@@ -1,6 +1,8 @@
 import NFTService from "../../services/nft";
 import { NextFunction, Request, Response } from "express";
 import { LIMIT_MAX_PAGINATION } from "../../../utils";
+import NftCommentsModel from "../../../models/nftComments";
+import UserViewModel from "src/models/userView";
 
 export class Controller {
   async getAllNFTs(
@@ -121,6 +123,44 @@ export class Controller {
       const nfts = (await NFTService.getNFTsForSerie(nft, page as string, limit as string))
       res.json(nfts);
     } catch (err) {
+      next(err);
+    }
+  }
+
+  async addComment(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void>{
+    try{
+      const id = req.params.id;
+      const walletId = req.body.walletId;
+      const note = req.body.note;
+      const text = req.body.text ? req.body.text : "";
+      if(note < 0 || note > 5 || !isNaN(note)){
+        if(text.length <= 240){
+          let nft = await NftCommentsModel.findOne({nftId: id});
+          if(nft){
+            nft.updateOne()
+          }else{
+            nft = new NftCommentsModel({
+              nftId: id,
+              comments: [{
+                author: walletId,
+                note,
+                text
+              }]
+            })
+            await nft.save()
+            res.send({success: "Comment added", data: nft.toObject()})
+          }
+        }else{
+          res.send({error: "Your text is limited to 240 characters"})
+        }
+      }else{
+        res.send({error: "Note format incorrect, -1<note<6 and note is integer"})
+      }
+    }catch(err){
       next(err);
     }
   }

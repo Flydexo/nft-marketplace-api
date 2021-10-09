@@ -233,18 +233,14 @@ export class Controller {
       const user = await BadgesModel.findOne({walletId});
       if(user){
         const result = await NFTService.getNFT(emoteId);
-        if(result.owner === walletId){
-          user.emotes.forEach((b, i) => {
-            if(b.nftId === emoteId){
-              user.emotes.splice(i, 1);
-              return
-            }
-          })
-          await user.updateOne({emotes: user.emotes})
-          res.json({success: "Badge deleted", data: user.emotes})
-        }else{
-          res.json({error: "You don't have this NFT"})
-        }
+        user.emotes.forEach((b, i) => {
+          if(b.nftId === emoteId){
+            user.emotes.splice(i, 1);
+            return
+          }
+        })
+        await user.updateOne({emotes: user.emotes})
+        res.json({success: "Badge deleted", data: user.emotes})
       }else{
         res.json({error: "You don't have badges"})
       }
@@ -260,6 +256,7 @@ export class Controller {
   ): Promise<void>{
     try{
       const walletId = req.query.walletId.toString();
+      console.log(walletId)
       const badges = await BadgesModel.findOne({walletId})
       if(badges){
         res.json({data: badges.emotes})
