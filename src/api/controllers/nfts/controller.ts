@@ -188,7 +188,7 @@ export class Controller {
       const id = req.params.id;
       if(id){
         const rates = await NftCommentsModel.find({nftId: id}).select("note");
-        if(rates){
+        if(rates.length >= 1){
           res.send({average: rates.map(r => r.note).reduce((a, b) => a + b)/rates.length});
         }else{
           res.send({average: 0});
