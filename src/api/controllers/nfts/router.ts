@@ -10,4 +10,5 @@ export default express
   .get("/:id", controller.getNFT)
   // .post("/new", controller.createNFT)
   .get("/getSameGroupNFTS/:id", controller.getNFTsBySerie)
+  .get("/getComments/:id", controller.getComments)
   .post("/addComment/:id", controller.addComment)

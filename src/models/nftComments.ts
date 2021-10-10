@@ -7,21 +7,18 @@ const NftComments = new mongoose.Schema({
       required: true,
       type: String
   },
-  comments: [{
-      _id: mongoose.SchemaTypes.ObjectId,
-      author: {
-        required: true,
-        type: String
-      },
-      note: {
-          required: true,
-          type: Number
-      },
-      text: {
-          required: false,
-          type: String
-      }
-  }]
+  author: {
+    required: true,
+    type: String
+  },
+  note: {
+      required: true,
+      type: Number
+  },
+  text: {
+      required: false,
+      type: String
+  }
 });
 
 NftComments.plugin(mongoosePaginate);

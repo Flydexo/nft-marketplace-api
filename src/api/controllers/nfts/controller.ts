@@ -137,28 +137,42 @@ export class Controller {
       const walletId = req.body.walletId;
       const note = req.body.note;
       const text = req.body.text ? req.body.text : "";
-      if(note < 0 || note > 5 || !isNaN(note)){
+      if(note > 0 && note < 6 && !isNaN(note)){
         if(text.length <= 240){
-          let nft = await NftCommentsModel.findOne({nftId: id});
-          if(nft){
-            nft.updateOne()
-          }else{
-            nft = new NftCommentsModel({
+            const nft = new NftCommentsModel({
               nftId: id,
-              comments: [{
-                author: walletId,
-                note,
-                text
-              }]
+              author: walletId,
+              note,
+              text
             })
             await nft.save()
             res.send({success: "Comment added", data: nft.toObject()})
-          }
         }else{
           res.send({error: "Your text is limited to 240 characters"})
         }
       }else{
         res.send({error: "Note format incorrect, -1<note<6 and note is integer"})
+      }
+    }catch(err){
+      next(err);
+    }
+  }
+
+  async getComments(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void>{
+    try{
+      const id = req.params.id;
+      const pageQ = req.query.page;
+      if(id){
+        NftCommentsModel.paginate({nftId: id}, {limit: 2, page: (pageQ ? Number(pageQ) : 1)}).then(({docs, page}) => {
+          console.log(docs, page)
+          res.send({data: docs, page})
+        }).catch(err => {
+          res.send(err)
+        })
       }
     }catch(err){
       next(err);

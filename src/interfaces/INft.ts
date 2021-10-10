@@ -16,7 +16,7 @@ export interface INftDto {
 export interface IMongoNftComment {
   _id: string;
   comments: {
-    _id: string,
+    _id?: string,
     author: string,
     note: number,
     text?: string
