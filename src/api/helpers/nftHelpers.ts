@@ -47,14 +47,15 @@ function parseRawNFT(NFT: INFT): INFT {
  */
 export async function populateNFT(NFT: INFT): Promise<ICompleteNFT | INFT> {
   const retNFT: INFT = parseRawNFT(NFT);
-  const [serieData, creatorData, ownerData, info, categories] = await Promise.all([
+  const [serieData, creatorData, ownerData, info, categories, average] = await Promise.all([
     populateSerieData(retNFT),
     populateNFTCreator(retNFT),
     populateNFTOwner(retNFT),
     populateNFTUri(retNFT),
     populateNFTCategories(retNFT),
+    populateNFTAverage(retNFT)
   ]);
-  return { ...retNFT, ...serieData, creatorData, ownerData, ...info, categories };
+  return { ...retNFT, ...serieData, creatorData, ownerData, ...info, categories, average };
 }
 
 export async function populateSerieData(
@@ -156,5 +157,16 @@ export async function populateNFTCategories(
   } catch (err) {
     L.error({ err }, "error retrieving nft's categories from mongo");
     return [];
+  }
+}
+
+export async function populateNFTAverage(
+  NFT: INFT
+): Promise<number> {
+  try {
+    const {average} = await NFTService.getAverage(NFT.id);
+    return average;
+  } catch (err) {
+    return 0;
   }
 }
