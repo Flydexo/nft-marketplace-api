@@ -167,12 +167,30 @@ export class Controller {
       const id = req.params.id;
       const pageQ = req.query.page;
       if(id){
-        NftCommentsModel.paginate({nftId: id}, {limit: 2, page: (pageQ ? Number(pageQ) : 1)}).then(({docs, page}) => {
+        NftCommentsModel.paginate({nftId: id}, {limit: 5, page: (pageQ ? Number(pageQ) : 1)}).then(({docs, page}) => {
           console.log(docs, page)
           res.send({data: docs, page})
         }).catch(err => {
           res.send(err)
         })
+      }
+    }catch(err){
+      next(err);
+    }
+  }
+
+  async getAverageRate(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void>{
+    try{
+      const id = req.params.id;
+      if(id){
+        const rates = await NftCommentsModel.find({nftId: id}).select("note");
+        res.send({average: rates.map(r => r.note).reduce((a, b) => a + b)/rates.length});
+      }else{
+        res.send({error: "Missing id"})
       }
     }catch(err){
       next(err);
