@@ -188,7 +188,11 @@ export class Controller {
       const id = req.params.id;
       if(id){
         const rates = await NftCommentsModel.find({nftId: id}).select("note");
-        res.send({average: rates.map(r => r.note).reduce((a, b) => a + b)/rates.length});
+        if(rates){
+          res.send({average: rates.map(r => r.note).reduce((a, b) => a + b)/rates.length});
+        }else{
+          res.send({average: 0});
+        }
       }else{
         res.send({error: "Missing id"})
       }
