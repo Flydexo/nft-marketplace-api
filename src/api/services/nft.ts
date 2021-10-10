@@ -14,6 +14,8 @@ import CategoryService from "./category"
 import { populateNFT } from "../helpers/nftHelpers";
 import QueriesBuilder from "./gqlQueriesBuilder";
 import { TIME_BETWEEN_SAME_USER_VIEWS } from "../../utils";
+import NFTController from "../../api/controllers/nfts/controller";
+import NftCommentsModel from "../../models/nftComments";
 
 const indexerUrl =
   process.env.INDEXER_URL || "https://indexer.chaos.ternoa.com";
@@ -62,6 +64,7 @@ export class NFTService {
       const query = QueriesBuilder.NFTfromId(id);
       const result: NFTListResponse = await request(indexerUrl, query);
       let NFT = result.nftEntities.nodes[0];
+      const {average} = await this.getAverage(id);
       if (!NFT) throw new Error();
       NFT = await populateNFT(NFT);
       let viewsCount = 0
@@ -76,7 +79,7 @@ export class NFTService {
           viewsCount = views.length
         }
       }
-      return { ...NFT, viewsCount};
+      return { ...NFT, viewsCount, average};
     } catch (err) {
       throw new Error("Couldn't get NFT");
     }
@@ -354,6 +357,15 @@ export class NFTService {
       return result
     }catch(err){
       throw new Error("Couldn't get NFTs for this serie");
+    }
+  }
+
+  async getAverage(id: string){
+    const rates = await NftCommentsModel.find({nftId: id}).select("note");
+    if(rates.length >= 1){
+      return {average: rates.map((r: {note: number}) => r.note).reduce((a: number, b: number) => a + b)/rates.length};
+    }else{
+      return {average: 0};
     }
   }
 

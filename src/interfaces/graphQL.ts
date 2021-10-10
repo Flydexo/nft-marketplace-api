@@ -16,6 +16,7 @@ export interface INFT {
   viewsCount?: number;
   serieData?: INFT[];
   marketplaceId?: string;
+  average?: number
 }
 
 export interface ICompleteNFT extends INFT {
